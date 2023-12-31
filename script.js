@@ -185,7 +185,7 @@ function displayNetworkInfo() {
     commonIPs.forEach(ip => {
         checkLocalIP(ip, (exists, ip) => {
             completedChecks++;
-            addRow(exists ? 'Active IP Found' : 'No response', ip);
+            addRow(exists ? 'Active IP Found' : 'No response (If your router has no HTTPs it wont respond due to github', ip);
 
             if (completedChecks === commonIPs.length) {
                 networkScanStatus.textContent = 'Network scan completed:';
