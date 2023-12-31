@@ -18,12 +18,78 @@
             <p>1. It is important to check multiple sources for a comprehensive understanding. Each link provides unique insights that contribute to a thorough analysis.</p>
             <p>2. Ensure you check group pages on social media for people discussing scam text messages with URLs in the screenshots - a great way to start!</p>
             <p>3. Facebook's ad library and user content can be invaluable in identifying link-based scams, offering insights into the methods used by potential fraudsters.</p>
-            <p>Browser info is shown below to ensure you know what the target website might log about you.</p>
+            <p>NOTHING BELOW IS STORED Browser info is shown below to ensure you know what the target website might log about you.</p>
         </div>
         <div id="browserInfo"></div>
-
-        <div id="linksArea"></div>
     </div>
+
+    <div id="autofillTestSection">
+        <h2>Test Your Browser's Autofill</h2>
+        <p>Use the form below to test how your browser's autofill feature works. This can help you understand the risks of accidentally sharing personal information.</p>
+        <form id="testForm">
+            <!-- Full Name Variations -->
+            <input type="text" placeholder="Full Name" name="fullName" autocomplete="name">
+            <input type="text" placeholder="First Name" name="firstName" autocomplete="given-name">
+            <input type="text" placeholder="Last Name" name="lastName" autocomplete="family-name">
+            <input type="text" placeholder="Name" name="name" autocomplete="name">
+            <input type="text" placeholder="Complete Name" name="completeName" autocomplete="name">
+    
+            <!-- Email Variations -->
+            <input type="email" placeholder="Email" name="email" autocomplete="email">
+            <input type="email" placeholder="Email Address" name="emailAddress" autocomplete="email">
+            <input type="email" placeholder="Personal Email" name="personalEmail" autocomplete="email">
+            <input type="email" placeholder="Work Email" name="workEmail" autocomplete="email">
+            <input type="email" placeholder="Primary Email" name="primaryEmail" autocomplete="email">
+    
+            <!-- Phone Number Variations -->
+            <input type="tel" placeholder="Phone Number" name="phone" autocomplete="tel">
+            <input type="tel" placeholder="Mobile Number" name="mobile" autocomplete="tel">
+            <input type="tel" placeholder="Home Phone" name="homePhone" autocomplete="tel">
+            <input type="tel" placeholder="Cell Number" name="cellNumber" autocomplete="tel">
+            <input type="tel" placeholder="Work Phone" name="workPhone" autocomplete="tel">
+    
+            <!-- Address Variations -->
+            <input type="text" placeholder="Address" name="address" autocomplete="street-address">
+            <input type="text" placeholder="Address Line 1" name="address1" autocomplete="address-line1">
+            <input type="text" placeholder="Address Line 2" name="address2" autocomplete="address-line2">
+            <input type="text" placeholder="Street" name="street" autocomplete="address-line1">
+            <input type="text" placeholder="Home Address" name="homeAddress" autocomplete="street-address">
+    
+            <!-- Additional Details -->
+            <input type="text" placeholder="City" name="city" autocomplete="address-level2">
+            <input type="text" placeholder="State/Province" name="state" autocomplete="address-level1">
+            <input type="text" placeholder="Postal Code" name="postalCode" autocomplete="postal-code">
+            <input type="text" placeholder="Country" name="country" autocomplete="country">
+            <input type="text" placeholder="Company Name" name="companyName" autocomplete="organization">
+            <input type="text" placeholder="Job Title" name="jobTitle" autocomplete="organization-title">
+    
+            <button type="button" onclick="showAutofilledData()">Show Autofilled Data</button>
+        </form>
+        <div id="autofilledData"></div>
+    </div>
+    <div id="linksArea"></div>
+    
+    <script>
+        function showAutofilledData() {
+            var form = document.getElementById('testForm');
+            var data = {
+                fullName: form['fullName'].value || form['firstName'].value + ' ' + form['lastName'].value,
+                email: form['email'].value || form['emailAddress'].value,
+                phone: form['phone'].value || form['mobile'].value || form['homePhone'].value,
+                address: form['address'].value || form['address1'].value + ' ' + form['address2'].value,
+                city: form['city'].value,
+                state: form['state'].value,
+                postalCode: form['postalCode'].value,
+                country: form['country'].value,
+                companyName: form['companyName'].value,
+                jobTitle: form['jobTitle'].value
+            };
+            document.getElementById('autofilledData').innerText = JSON.stringify(data, null, 2);
+        }
+    </script>
+    
+    
     <script src="script.js"></script>
-</body>
-</html>
+    </body>
+    </html>
+    
