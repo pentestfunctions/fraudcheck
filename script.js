@@ -80,7 +80,7 @@ function checkLocalIP(ip, callback) {
         }
     };
 
-    img.src = `http://${ip}/favicon.ico?${new Date().getTime()}`;
+    img.src = `https://${ip}/favicon.ico?${new Date().getTime()}`;
 
     setTimeout(() => {
         if (!responded) {
