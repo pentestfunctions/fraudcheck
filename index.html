@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FraudCheck - Domain Analysis Tool</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>FraudCheck - Domain Analysis URLs</h1>
+    </header>
+
+    <div class="container">
+        <input type="text" id="domainInput" placeholder="Enter domain (e.g., example.com not https://example.com or www.example.com)">
+        <button onclick="generateLinks()">Generate Links</button>
+        
+        <div id="facebookSection">
+            <p>1. It is important to check multiple sources for a comprehensive understanding. Each link provides unique insights that contribute to a thorough analysis.</p>
+            <p>2. Ensure you check group pages on social media for people discussing scam text messages with URLs in the screenshots - a great way to start!</p>
+            <p>3. Facebook's ad library and user content can be invaluable in identifying link based scams, offering insights into the methods used by potential fraudsters.</p>
+        </div>
+
+        <div id="linksArea"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
