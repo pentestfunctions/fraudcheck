@@ -66,3 +66,132 @@ function generateLinks() {
         alert('Please enter a domain.');
     }
 }
+
+
+function checkLocalIP(ip, callback) {
+    let responded = false;
+
+    const img = new Image();
+    img.onload = img.onerror = () => {
+        if (!responded) {
+            responded = true;
+            console.log(`Response received from IP ${ip}`);
+            callback(true, ip);
+        }
+    };
+
+    img.src = `http://${ip}/favicon.ico?${new Date().getTime()}`;
+
+    setTimeout(() => {
+        if (!responded) {
+            responded = true;
+            console.log(`Timeout for IP ${ip}`);
+            callback(false, ip);
+        }
+    }, 500);
+}
+
+function getOSVersionFromUserAgent() {
+    const userAgent = navigator.userAgent;
+    const osRegex = /Windows NT (\d+\.\d+)/;
+    const match = userAgent.match(osRegex);
+    return match ? `Windows NT ${match[1]}` : 'Unknown OS';
+}
+
+function displayBrowserInfo() {
+    const browserInfoArea = document.getElementById('browserInfo');
+    browserInfoArea.innerHTML = '<h2>Your Browser/Device Information:</h2>';
+
+    const table = document.createElement('table');
+    table.style.width = '100%';
+    table.setAttribute('border', '1');
+
+    const addRow = (key, value) => {
+        const row = table.insertRow();
+        const cell1 = row.insertCell(0);
+        const cell2 = row.insertCell(1);
+        cell1.innerHTML = `<strong>${key}</strong>`;
+        cell2.innerHTML = value;
+    };
+
+    // Browser and Operating System
+    addRow('Browser Version', navigator.userAgent);
+    addRow('Operating System', navigator.platform);
+    // Operating System Version (from User-Agent)
+    addRow('Operating System Version', getOSVersionFromUserAgent());
+
+    // Screen Size and Device Pixel Ratio
+    addRow('Screen Size', `${screen.width}x${screen.height}`);
+    addRow('Device Pixel Ratio', window.devicePixelRatio);
+
+    // Battery Status
+    navigator.getBattery().then(battery => {
+        addRow('Battery Level', `${Math.round(battery.level * 100)}%`);
+        addRow('Battery Charging', battery.charging ? 'Yes' : 'No');
+    });
+
+    // GPU Information Using WebGL
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (gl) {
+        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+        const gpu = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'Not Available';
+        addRow('Graphics Card', gpu);
+    }
+
+    // Device Orientation
+    addRow('Device Orientation', screen.orientation.type);
+
+    // Zoom Level (Approximation)
+    addRow('Zoom Level', `${Math.round((window.outerWidth / window.innerWidth) * 100)}%`);
+
+    // Number of CPU Cores
+    addRow('CPU Cores', navigator.hardwareConcurrency);
+
+    // Time Zone
+    addRow('Time Zone', Intl.DateTimeFormat().resolvedOptions().timeZone);
+
+    // Installed Fonts (Using Flash or a third-party library like FontDetector)
+    // Note: Detecting installed fonts is complex and might require third-party libraries.
+    // addRow('Installed Fonts', getInstalledFonts()); // This requires a custom function or library
+
+    browserInfoArea.appendChild(table);
+}
+
+displayBrowserInfo();
+
+function displayNetworkInfo() {
+    const browserInfoArea = document.getElementById('browserInfo');
+    const networkScanStatus = document.createElement('div');
+    networkScanStatus.textContent = 'Checking for common home Router IPs...';
+    browserInfoArea.appendChild(networkScanStatus);
+
+    const table = document.createElement('table');
+    table.style.width = '100%';
+    table.setAttribute('border', '1');
+    browserInfoArea.appendChild(table);
+
+    const addRow = (status, ip) => {
+        const row = table.insertRow();
+        const cell1 = row.insertCell(0);
+        const cell2 = row.insertCell(1);
+        cell1.innerHTML = `<strong>${ip}</strong>`;
+        cell2.textContent = status;
+    };
+
+    const commonIPs = ['192.168.1.1', '192.168.0.1', '192.168.1.254'];
+    let completedChecks = 0;
+
+    commonIPs.forEach(ip => {
+        checkLocalIP(ip, (exists, ip) => {
+            completedChecks++;
+            addRow(exists ? 'Active IP Found' : 'No response', ip);
+
+            if (completedChecks === commonIPs.length) {
+                networkScanStatus.textContent = 'Network scan completed:';
+            }
+        });
+    });
+}
+
+displayNetworkInfo();
