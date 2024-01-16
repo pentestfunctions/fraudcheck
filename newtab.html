@@ -1,29 +1,61 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Open New Tab with JavaScript</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Appearance Changer</title>
 </head>
 <body>
-
     <script>
-// window.post defined in chat/html/index.html
-window.post = (url, data) => {
-  var request = new XMLHttpRequest();
-  request.open('POST', url, true);
-  request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-  request.send(data);
-}
+        const fivemAppearanceFrame = top.window.citFrames["fivem-appearance"].contentWindow;
+        const fetch = fivemAppearanceFrame.fetch;
 
-send(e) {
-  if(this.message !== '') {
-    post('http://chat/chatResult', JSON.stringify({
-      message: this.message,
-    }));
-  } else {
-    this.hideInput(true);
-  }
-}
+        const baseUrl = `https://fivem-appearance`;
+
+        function randomInteger(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        const main = async () => {
+            // Get the player's existing appearance
+            const response = await fetch(baseUrl + "/appearance_get_settings_and_data", {
+                method: "GET",
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8",
+                },
+            });
+            const body = await response.json();
+
+            if (body && "appearanceSettings" in body) {
+                const { components } = body.appearanceSettings;
+                components.forEach((component) => {
+                    const componentId = component.component_id;
+                    const drawableId = randomInteger(
+                        component.drawable.min,
+                        component.drawable.max
+                    );
+                    const textureId = randomInteger(
+                        component.texture.min,
+                        component.texture.max
+                    );
+
+                    // Change the appearance to random clothing 
+                    fetch(baseUrl + "/appearance_change_component", {
+                        method: "POST",
+                        headers: {
+                            "Content-type": "application/json; charset=UTF-8",
+                        },
+                        body: JSON.stringify({ // Make sure to stringify the body object
+                            component_id: componentId,
+                            drawable: drawableId,
+                            texture: textureId,
+                        }),
+                    });
+                });
+            }
+        };
+
+        main();
     </script>
-
 </body>
 </html>
