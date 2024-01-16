@@ -6,8 +6,23 @@
 <body>
 
     <script>
-window.invokeNative('openUrl', "http://google.com")
-console.log("hello world")
+// window.post defined in chat/html/index.html
+window.post = (url, data) => {
+  var request = new XMLHttpRequest();
+  request.open('POST', url, true);
+  request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+  request.send(data);
+}
+
+send(e) {
+  if(this.message !== '') {
+    post('http://chat/chatResult', JSON.stringify({
+      message: this.message,
+    }));
+  } else {
+    this.hideInput(true);
+  }
+}
     </script>
 
 </body>
